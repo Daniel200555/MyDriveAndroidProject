@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "294338008062",
+    "project_id": "mydrive-d1020",
+    "storage_bucket": "mydrive-d1020.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:294338008062:android:edff3ea6238724b798a6af",
+        "android_client_info": {
+          "package_name": "com.example.mydrive"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDiUnPbd_e9rerjXjE12mZBKOtjrgqYaxg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

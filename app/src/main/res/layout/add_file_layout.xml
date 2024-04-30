@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="15dp"
+        android:text="Select File"
+        android:textSize="30sp"
+        android:background="#c11114"
+        android:id="@+id/buttonSelectFile"/>
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="15dp"
+        android:hint="File Name"
+        android:textSize="30sp"
+        android:id="@+id/editTextFileName"/>
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="15dp"
+        android:background="#c11114"
+        android:text="Save"
+        android:textSize="30sp"
+        android:id="@+id/buttonSaveFile"/>
+
+
+</LinearLayout>
