@@ -20,6 +20,7 @@ import com.example.mydrive.Home;
 import com.example.mydrive.ListOfFiles;
 import com.example.mydrive.R;
 import com.example.mydrive.dto.FileDTO;
+import com.example.mydrive.service.FileGet;
 import com.example.mydrive.service.FileService;
 import com.example.mydrive.service.RegisterAndLogin;
 
@@ -62,9 +63,10 @@ public class FileItems extends ArrayAdapter<FileDTO> {
                 if (file.getType().equals("PICTURE")) {
 
                     FileService.showImage(getContext(), file.getDir(), file.getFormat());
-                    Log.d("FILE SHOW ", "show file");
-                } else if (file.getFormat() == "VIDEO") {
-
+                    Log.d("FILE SHOW ", "show image");
+                } else if (file.getFormat().equals("VIDEO")) {
+                    FileService.showVideo(getContext(), file.getDir());
+                    Log.d("FILE SHOW ", "show video");
                 } else if (file.getFormat() == "NULL") {
 
                 }

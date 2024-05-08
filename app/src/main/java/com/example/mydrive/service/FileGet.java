@@ -322,8 +322,9 @@ public class FileGet {
                         if (files.get(i).getDir().equals(filePath)) {
                             file = files.get(i);
                             file.setStar(true);
-                            files.remove(i);
-                            files.add(file);
+                            files.set(i, file);
+//                            files.remove(i);
+//                            files.add(file);
                         }
                     }
                     userDTO.setFiles(files);
@@ -354,8 +355,9 @@ public class FileGet {
                         if (files.get(i).getDir().equals(filePath)) {
                             file = files.get(i);
                             file.setStar(false);
-                            files.remove(i);
-                            files.add(file);
+                            files.set(i, file);
+//                            files.remove(i);
+//                            files.add(file);
                         }
                     }
                     userDTO.setFiles(files);

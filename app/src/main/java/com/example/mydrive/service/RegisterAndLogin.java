@@ -28,6 +28,7 @@ public class RegisterAndLogin {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if (task.isComplete()) {
+                    new FileManager().saveDir(new RegisterAndLogin().getEmail(), "",context, email);
                     Toast.makeText(context, "Successfully complete", Toast.LENGTH_LONG).show();
                     Log.i("Register ->", "User registered with email -> " + email);
                 } else {

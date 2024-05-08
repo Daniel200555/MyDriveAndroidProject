@@ -16,6 +16,7 @@ import androidx.annotation.NonNull;
 
 import com.example.mydrive.R;
 import com.example.mydrive.dialog.ImageDialog;
+import com.example.mydrive.dialog.VideoDialog;
 import com.example.mydrive.dto.FileDTO;
 import com.example.mydrive.dto.UserListDTO;
 import com.example.mydrive.format.Format;
@@ -69,6 +70,27 @@ public class FileManager {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+    }
+
+    public void saveDir(String email, String path, Context context, String name) {
+        String fileName = name;
+        new FileGet().addFile(email, saveInDatabase(email, name, 0));
+        StorageReference fileRef = storageReference.child(path);
+//        try {
+////            InputStream inputStream = context.getContentResolver().openInputStream(uri);
+//            if (inputStream != null) {
+//                fileRef.putStream(inputStream)
+//                        .addOnSuccessListener(taskSnapshot -> {
+//                            Log.d("SAVE", "File saved success!!!");
+//                        })
+//                        .addOnFailureListener(e -> {
+//                            Log.e("SAVE", "Could not save file");
+//                        });
+//            }
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
 
     }
 
@@ -204,6 +226,21 @@ public class FileManager {
             return fileName != null;
         }
         return false;
+    }
+
+    public void showVideo(Context context, String path) {
+        StorageReference show = FirebaseStorage.getInstance().getReference().child(path);
+            show.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                @Override
+                public void onSuccess(Uri uri) {
+                    new VideoDialog(context, uri);
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+
+                }
+            });
     }
 
     public void showImage(Context context, String path, String type) {
