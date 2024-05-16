@@ -31,8 +31,9 @@ public class FileService {
         new FileManager().showVideo(context, path, type);
     }
 
-    public static void shareFile() {
-
+    public static void shareFile(String ownerEmail, String shareEmail, String path) {
+        new FileGet().shareFileToEmail(shareEmail, path);
+        new FileGet().shareFile(shareEmail, shareEmail, path);
     }
 
 }

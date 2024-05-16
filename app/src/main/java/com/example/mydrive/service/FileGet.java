@@ -131,9 +131,14 @@ public class FileGet {
                 UserDTO userDTO = null;
                 for (DataSnapshot dataSnapshot: snapshot.getChildren()) {
                     userDTO = dataSnapshot.getValue(UserDTO.class);
-                    if (userDTO != null && userDTO.getFiles() != null)
+                    if (userDTO != null && userDTO.getFiles() != null) {
+                        files.addAll(userDTO.getFiles());
                         shares.addAll(userDTO.getShared());
-
+                    }
+                    for (int i = 0; i < files.size(); i++) {
+                        if (files.get(i).getDir().equals(path))
+                            temp = files.get(i);
+                    }
                     shares.add(temp);
                     userDTO.setShared(shares);
                     dataSnapshot.getRef().setValue(userDTO);
@@ -149,7 +154,7 @@ public class FileGet {
     }
 
 
-    public void shareFile(String shareEmail, String ownerEmail, String fileName) {
+    public void shareFile(String shareEmail, String ownerEmail, String path) {
         UserListDTO userL = new UserListDTO(shareEmail);
         Query query = databaseReference.child("Users").orderByChild("email").equalTo(ownerEmail);
         query.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -163,7 +168,7 @@ public class FileGet {
                     files.addAll(userDTO.getFiles());
                     for (int i = 0; i < files.size(); i++) {
                         FileDTO  file = files.get(i);
-                        if (file.getName().equals(fileName)) {
+                        if (file.getDir().equals(path)) {
                             usersList.addAll(file.getSharedToUsers());
                             usersList.add(userL);
                             file.setSharedToUsers(usersList);
