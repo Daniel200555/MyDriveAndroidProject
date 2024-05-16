@@ -19,6 +19,7 @@ import androidx.appcompat.widget.AppCompatButton;
 import com.example.mydrive.Home;
 import com.example.mydrive.ListOfFiles;
 import com.example.mydrive.R;
+import com.example.mydrive.dialog.ShareDialog;
 import com.example.mydrive.dto.FileDTO;
 import com.example.mydrive.service.FileService;
 import com.example.mydrive.service.RegisterAndLogin;
@@ -82,6 +83,15 @@ public class FileItems extends ArrayAdapter<FileDTO> {
         MenuItem star = popupMenu.getMenu().findItem(R.id.action_star);
         MenuItem download = popupMenu.getMenu().findItem(R.id.action_download);
         MenuItem share = popupMenu.getMenu().findItem(R.id.action_share);
+        share.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(@NonNull MenuItem item) {
+                new ShareDialog(context, fileDTO.getDir());
+                Log.d("SHARE FILE", fileDTO.getDir());
+                Toast.makeText(getContext(), "Share clicked. Dir " + fileDTO.getDir(), Toast.LENGTH_SHORT).show();
+                return true;
+            }
+        });
         delete.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(@NonNull MenuItem item) {
