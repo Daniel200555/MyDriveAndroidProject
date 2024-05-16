@@ -120,19 +120,22 @@ public class FileGet {
         databaseReference = null;
     }
 
-    public void shareFileToEmail(String emailShare, FileDTO file) {
+    public void shareFileToEmail(String emailShare, String path) {
         Query query = databaseReference.child("Users").orderByChild("email").equalTo(emailShare);
         query.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
+                List<FileDTO> shares = new ArrayList<>();
                 List<FileDTO> files = new ArrayList<>();
+                FileDTO temp = null;
                 UserDTO userDTO = null;
                 for (DataSnapshot dataSnapshot: snapshot.getChildren()) {
                     userDTO = dataSnapshot.getValue(UserDTO.class);
                     if (userDTO != null && userDTO.getFiles() != null)
-                        files.addAll(userDTO.getShared());
-                    files.add(file);
-                    userDTO.setShared(files);
+                        shares.addAll(userDTO.getShared());
+
+                    shares.add(temp);
+                    userDTO.setShared(shares);
                     dataSnapshot.getRef().setValue(userDTO);
                 }
             }
@@ -323,8 +326,6 @@ public class FileGet {
                             file = files.get(i);
                             file.setStar(true);
                             files.set(i, file);
-//                            files.remove(i);
-//                            files.add(file);
                         }
                     }
                     userDTO.setFiles(files);
@@ -356,8 +357,6 @@ public class FileGet {
                             file = files.get(i);
                             file.setStar(false);
                             files.set(i, file);
-//                            files.remove(i);
-//                            files.add(file);
                         }
                     }
                     userDTO.setFiles(files);

@@ -12,9 +12,7 @@ import android.widget.LinearLayout;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.AppCompatButton;
 
-import com.example.mydrive.dialog.Add;
 import com.example.mydrive.dialog.SaveFile;
 import com.example.mydrive.service.ChangeActivity;
 import com.example.mydrive.service.FileManager;
@@ -30,8 +28,6 @@ public class Home extends AppCompatActivity implements View.OnClickListener {
     private Button buttonAllFiles;
     private Button buttonSharedFiles;
     private Button buttonStarredFiles;
-    private AppCompatButton buttonAddFile;
-    private Add add;
     private static final int REQUEST_CODE_FILE_PICKER = 100;
     private StorageReference storageReference;
 
@@ -44,8 +40,6 @@ public class Home extends AppCompatActivity implements View.OnClickListener {
         this.buttonAllFiles = (Button) findViewById(R.id.buttonAllFiles);
         this.buttonSharedFiles = (Button) findViewById(R.id.buttonSharedFiles);
         this.buttonStarredFiles = (Button) findViewById(R.id.buttonStarredFiles);
-//        this.buttonAddFile = (AppCompatButton) findViewById(R.id.buttonAdd);
-//        this.buttonAddFile.setOnClickListener(this);
         this.buttonLogout.setOnClickListener(this);
         this.buttonAllFiles.setOnClickListener(this);
         this.buttonSharedFiles.setOnClickListener(this);
@@ -100,8 +94,6 @@ public class Home extends AppCompatActivity implements View.OnClickListener {
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.fragmentListOfFile, fragment)
                     .commit();
-        } if (v == buttonAddFile) {
-//            this.add = new Add(this);
         }
     }
 

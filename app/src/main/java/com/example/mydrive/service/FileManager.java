@@ -54,7 +54,6 @@ public class FileManager {
     public void saveFile(String email, String path, Context context, Uri uri) {
         File file = new File(uri.toString());
         String fileName = file.getName();
-        new FileGet().addFile(email, saveInDatabase(email, getFileNameFromUri(context, uri), getSizeOfFile(context, uri)));
         StorageReference fileRef = storageReference.child( email + "/" + getFileNameFromUri(context, uri));
         try {
             InputStream inputStream = context.getContentResolver().openInputStream(uri);
@@ -70,28 +69,7 @@ public class FileManager {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-    }
-
-    public void saveDir(String email, String path, Context context, String name) {
-        String fileName = name;
-        new FileGet().addFile(email, saveInDatabase(email, name, 0));
-        StorageReference fileRef = storageReference.child(path);
-//        try {
-////            InputStream inputStream = context.getContentResolver().openInputStream(uri);
-//            if (inputStream != null) {
-//                fileRef.putStream(inputStream)
-//                        .addOnSuccessListener(taskSnapshot -> {
-//                            Log.d("SAVE", "File saved success!!!");
-//                        })
-//                        .addOnFailureListener(e -> {
-//                            Log.e("SAVE", "Could not save file");
-//                        });
-//            }
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-
+        new FileGet().addFile(email, saveInDatabase(email, getFileNameFromUri(context, uri), getSizeOfFile(context, uri)));
     }
 
     public FileDTO saveInDatabase(String email, String fileName, int fileSize) {
@@ -228,19 +206,26 @@ public class FileManager {
         return false;
     }
 
-    public void showVideo(Context context, String path) {
+    public void showVideo(Context context, String path, String type) {
+        Log.d("SHOW VIDEO", "alo method");
         StorageReference show = FirebaseStorage.getInstance().getReference().child(path);
-            show.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                @Override
-                public void onSuccess(Uri uri) {
-                    new VideoDialog(context, uri);
-                }
-            }).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-
-                }
-            });
+//        File local = null;
+//        try {
+//            local = File.createTempFile("video", type);
+//        } catch (IOException e) {
+//            throw new RuntimeException(e);
+//        }
+//        File finalFile = local;
+        show.getDownloadUrl()
+                .addOnSuccessListener( uri -> {
+                        new VideoDialog(context, uri);
+                        Log.d("FILE SHOW ", "show file");
+                    }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d("FILE SHOW ", "error to show file");
+                    }
+                });
     }
 
     public void showImage(Context context, String path, String type) {

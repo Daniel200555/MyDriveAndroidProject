@@ -27,10 +27,12 @@ public class FileService {
         new FileManager().showImage(context, path, type);
     }
 
-    public static void showVideo(Context context, String path) {
-        new FileManager().showVideo(context, path);
+    public static void showVideo(Context context, String path, String type) {
+        new FileManager().showVideo(context, path, type);
     }
 
+    public static void shareFile() {
 
+    }
 
 }

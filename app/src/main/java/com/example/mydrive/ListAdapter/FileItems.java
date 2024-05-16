@@ -20,7 +20,6 @@ import com.example.mydrive.Home;
 import com.example.mydrive.ListOfFiles;
 import com.example.mydrive.R;
 import com.example.mydrive.dto.FileDTO;
-import com.example.mydrive.service.FileGet;
 import com.example.mydrive.service.FileService;
 import com.example.mydrive.service.RegisterAndLogin;
 
@@ -60,15 +59,15 @@ public class FileItems extends ArrayAdapter<FileDTO> {
         convertView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (file.getType().equals("PICTURE")) {
-
-                    FileService.showImage(getContext(), file.getDir(), file.getFormat());
-                    Log.d("FILE SHOW ", "show image");
-                } else if (file.getFormat().equals("VIDEO")) {
-                    FileService.showVideo(getContext(), file.getDir());
-                    Log.d("FILE SHOW ", "show video");
-                } else if (file.getFormat() == "NULL") {
-
+                switch (file.getType()) {
+                    case "PICTURE":
+                        FileService.showImage(getContext(), file.getDir(), file.getFormat());
+                        Log.d("FILE SHOW ", "show file");
+                        break;
+                    case "VIDEO":
+                        FileService.showVideo(getContext(), file.getDir(), file.getFormat());
+                        Log.d("FILE SHOW ", "show file");
+                        break;
                 }
             }
         });
@@ -82,6 +81,7 @@ public class FileItems extends ArrayAdapter<FileDTO> {
         MenuItem delete = popupMenu.getMenu().findItem(R.id.action_delete);
         MenuItem star = popupMenu.getMenu().findItem(R.id.action_star);
         MenuItem download = popupMenu.getMenu().findItem(R.id.action_download);
+        MenuItem share = popupMenu.getMenu().findItem(R.id.action_share);
         delete.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(@NonNull MenuItem item) {

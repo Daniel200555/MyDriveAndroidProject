@@ -42,7 +42,7 @@ public class FragmentListOfFiles extends Fragment implements View.OnClickListene
     private String path;
 
     public FragmentListOfFiles(String email) {
-        this.email = new RegisterAndLogin().getEmail();
+        this.email = email;
         Log.d("Fraqment" , this.email);
     }
 
@@ -156,6 +156,7 @@ public class FragmentListOfFiles extends Fragment implements View.OnClickListene
                 }
             });
         }
+
         return view;
     }
 
