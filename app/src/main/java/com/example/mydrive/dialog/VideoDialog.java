@@ -6,12 +6,18 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.util.Log;
+import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.MediaController;
 import android.widget.VideoView;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentActivity;
+
+import com.example.mydrive.FragmentListOfFiles;
 import com.example.mydrive.R;
+import com.example.mydrive.VideoFragment;
 
 import java.io.File;
 
@@ -28,12 +34,9 @@ public class VideoDialog {
         dialog.setContentView(R.layout.video_dialog);
         dialog.setTitle("Video Dialog");
         dialog.setCancelable(true);
-        videoView = dialog.findViewById(R.id.videoView);
-        MediaController mediaController = new MediaController(context);
-        mediaController.setAnchorView(videoView);
-        videoView.setMediaController(mediaController);
-        videoView.setVideoURI(file);
-        videoView.start();
+//        context.getSupportFragmentManager().beginTransaction()
+//                .add(R.id.videoViewFragment, new VideoFragment(context, file))
+//                .commit();
         dialog.show();
     }
 

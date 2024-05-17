@@ -187,7 +187,7 @@ public class FragmentListOfFiles extends Fragment implements View.OnClickListene
     @Override
     public void onClick(View v) {
         if (v == buttonAdd) {
-            this.add = new Add(requireContext(), getPath());
+//            this.add = new Add(requireContext(), getPath());
         }
     }
 }

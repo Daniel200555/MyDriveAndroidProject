@@ -14,11 +14,13 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatButton;
 
 import com.example.mydrive.Home;
 import com.example.mydrive.ListOfFiles;
 import com.example.mydrive.R;
+import com.example.mydrive.dialog.ListOfShareUser;
 import com.example.mydrive.dialog.ShareDialog;
 import com.example.mydrive.dto.FileDTO;
 import com.example.mydrive.service.FileService;
@@ -86,7 +88,10 @@ public class FileItems extends ArrayAdapter<FileDTO> {
         share.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(@NonNull MenuItem item) {
-                new ShareDialog(context, fileDTO.getDir());
+                if (fileDTO.getSharedToUsers().size() != 0)
+                    new ShareDialog(context, fileDTO.getDir());
+                else
+                    new ListOfShareUser(context, fileDTO.getDir());
                 Log.d("SHARE FILE", fileDTO.getDir());
                 Toast.makeText(getContext(), "Share clicked. Dir " + fileDTO.getDir(), Toast.LENGTH_SHORT).show();
                 return true;
@@ -134,7 +139,7 @@ public class FileItems extends ArrayAdapter<FileDTO> {
         return context;
     }
 
-    public void setContext(Context context) {
+    public void setContext(AppCompatActivity context) {
         this.context = context;
     }
 }
