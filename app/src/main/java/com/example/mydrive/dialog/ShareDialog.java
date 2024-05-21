@@ -2,13 +2,20 @@ package com.example.mydrive.dialog;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import androidx.fragment.app.FragmentActivity;
+
+import com.example.mydrive.FragmentListOfFiles;
 import com.example.mydrive.R;
+import com.example.mydrive.dto.FileDTO;
+import com.example.mydrive.service.FileService;
+import com.example.mydrive.service.RegisterAndLogin;
 
 public class ShareDialog {
 
@@ -18,7 +25,7 @@ public class ShareDialog {
     private Button shareButton;
 
 
-    public ShareDialog(Context context, String path) {
+    public ShareDialog(Context context, FileDTO file) {
         Log.d("SHARE", "Open share dialog");
         dialog = new Dialog(context);
         dialog.setContentView(R.layout.share_dialog);
@@ -29,7 +36,20 @@ public class ShareDialog {
         shareButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                FileService.shareFile(new RegisterAndLogin().getEmail(), shareEmail.getText().toString(), file);
+                try {
+                    Thread.sleep(1000);
+                    Bundle args = new Bundle();
+                    args.putString("option", "all");
+                    FragmentListOfFiles fragment = new FragmentListOfFiles(new RegisterAndLogin().getEmail());
+                    fragment.setArguments(args);
+                    ((FragmentActivity) context).getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.fragmentListOfFile, fragment)
+                            .commit();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+                dialog.dismiss();
             }
         });
         dialog.show();

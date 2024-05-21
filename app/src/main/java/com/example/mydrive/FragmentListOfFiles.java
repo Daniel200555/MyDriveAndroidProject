@@ -27,17 +27,12 @@ import java.util.List;
 
 public class FragmentListOfFiles extends Fragment implements View.OnClickListener {
 
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
     private String value;
 
     private ListView listView;
 
     private AppCompatButton buttonAdd;
     private Add add;
-
-    private String mParam1;
-    private String mParam2;
     private String email;
     private String path;
 
@@ -50,8 +45,6 @@ public class FragmentListOfFiles extends Fragment implements View.OnClickListene
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
         }
 
     }
@@ -187,7 +180,7 @@ public class FragmentListOfFiles extends Fragment implements View.OnClickListene
     @Override
     public void onClick(View v) {
         if (v == buttonAdd) {
-//            this.add = new Add(requireContext(), getPath());
+            this.add = new Add(requireContext(), getPath());
         }
     }
 }

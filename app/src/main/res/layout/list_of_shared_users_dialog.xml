@@ -10,11 +10,11 @@
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/buttonAddShareUser"
-        android:layout_width="45dp"
-        android:layout_height="45dp"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
         android:layout_gravity="bottom"
-        android:layout_marginLeft="25dp"
-        android:layout_marginBottom="25dp"
-        android:background="@drawable/transparent_background"/>
+        android:layout_marginLeft="5dp"
+        android:layout_marginBottom="5dp"
+        android:background="@drawable/transparent_background" />
 
 </FrameLayout>

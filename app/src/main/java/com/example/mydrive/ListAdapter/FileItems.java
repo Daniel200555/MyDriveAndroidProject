@@ -2,6 +2,7 @@ package com.example.mydrive.ListAdapter;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -16,11 +17,14 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatButton;
+import androidx.fragment.app.FragmentActivity;
 
+import com.example.mydrive.FragmentListOfFiles;
 import com.example.mydrive.Home;
 import com.example.mydrive.ListOfFiles;
 import com.example.mydrive.R;
 import com.example.mydrive.dialog.ListOfShareUser;
+import com.example.mydrive.dialog.SaveFolder;
 import com.example.mydrive.dialog.ShareDialog;
 import com.example.mydrive.dto.FileDTO;
 import com.example.mydrive.service.FileService;
@@ -71,6 +75,8 @@ public class FileItems extends ArrayAdapter<FileDTO> {
                         FileService.showVideo(getContext(), file.getDir(), file.getFormat());
                         Log.d("FILE SHOW ", "show file");
                         break;
+                    case "FOLDER":
+                        new FragmentListOfFiles(new RegisterAndLogin().getEmail());
                 }
             }
         });
@@ -88,10 +94,12 @@ public class FileItems extends ArrayAdapter<FileDTO> {
         share.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(@NonNull MenuItem item) {
-                if (fileDTO.getSharedToUsers().size() != 0)
-                    new ShareDialog(context, fileDTO.getDir());
+                Log.d("Share Size", "Size: " + fileDTO.getSharedToUsers().size());
+                if (fileDTO.getSharedToUsers().size() > 1)
+                    new ListOfShareUser(context, fileDTO);
                 else
-                    new ListOfShareUser(context, fileDTO.getDir());
+//                    new SaveFolder(context, "bla");
+                    new ShareDialog(context, fileDTO);
                 Log.d("SHARE FILE", fileDTO.getDir());
                 Toast.makeText(getContext(), "Share clicked. Dir " + fileDTO.getDir(), Toast.LENGTH_SHORT).show();
                 return true;
@@ -102,6 +110,18 @@ public class FileItems extends ArrayAdapter<FileDTO> {
             public boolean onMenuItemClick(@NonNull MenuItem item) {
 
                 new FileService().deleteFile(new RegisterAndLogin().getEmail(), fileDTO);
+                try {
+                    Thread.sleep(1000);
+                    Bundle args = new Bundle();
+                    args.putString("option", "all");
+                    FragmentListOfFiles fragment = new FragmentListOfFiles(new RegisterAndLogin().getEmail());
+                    fragment.setArguments(args);
+                    ((FragmentActivity) context).getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.fragmentListOfFile, fragment)
+                            .commit();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
                 Toast.makeText(getContext(), "Delete clicked", Toast.LENGTH_SHORT).show();
                 return true;
             }
@@ -113,6 +133,18 @@ public class FileItems extends ArrayAdapter<FileDTO> {
                     new FileService().starFile(new RegisterAndLogin().getEmail(), fileDTO.getDir());
                 else
                     new FileService().unStarFile(new RegisterAndLogin().getEmail(), fileDTO.getDir());
+                try {
+                    Thread.sleep(1000);
+                    Bundle args = new Bundle();
+                    args.putString("option", "all");
+                    FragmentListOfFiles fragment = new FragmentListOfFiles(new RegisterAndLogin().getEmail());
+                    fragment.setArguments(args);
+                    ((FragmentActivity) context).getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.fragmentListOfFile, fragment)
+                            .commit();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
                 Toast.makeText(getContext(), "Star clicked", Toast.LENGTH_SHORT).show();
                 return true;
             }

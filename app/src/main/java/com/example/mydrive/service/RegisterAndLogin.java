@@ -8,7 +8,10 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
+import com.example.mydrive.dialog.InfoDialog;
+import com.example.mydrive.util.AnswerCallback;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 //import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.AuthResult;
@@ -36,23 +39,36 @@ public class RegisterAndLogin {
                 }
                 dialog.dismiss();
             }
+        }).addOnFailureListener((Activity) context, new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                InfoDialog infoDialog = new InfoDialog(context, "Email is existing");
+            }
         });
 
     }
 
-    public void login(Context context, String email, String password, Dialog dialog) {
+    public void login(Context context, String email, String password, Dialog dialog, AnswerCallback answerCallback) {
         this.firebaseAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener((Activity) context, new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if (task.isSuccessful()) {
                     Toast.makeText(context, "Successfully login", Toast.LENGTH_LONG).show();
+                    answerCallback.checkForErrors(false);
+//                    dialog.dismiss();
                     Log.i("Login ->", "User login with email -> " + email);
                 } else {
                     Toast.makeText(context, "Login Error", Toast.LENGTH_LONG).show();
+                    answerCallback.checkForErrors(true);
                     Log.i("Login ->", "User could not login with email -> " + email);
                 }
-                dialog.dismiss();
+
             }
+//        }).addOnFailureListener(new OnFailureListener() {
+//            @Override
+//            public void onFailure(@NonNull Exception e) {
+//                InfoDialog infoDialog = new InfoDialog(context, "Password is wrong");
+//            }
         });
     }
 

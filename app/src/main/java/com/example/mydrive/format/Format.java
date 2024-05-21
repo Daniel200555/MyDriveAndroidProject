@@ -6,6 +6,8 @@ public class Format {
         return switch (name) {
             case "jpg", "jpeg", "png" -> "PICTURE";
             case "mp4", "mov", "avi" -> "VIDEO";
+            case "mp3" -> "AUDIO";
+            case "txt" -> "DOCUMENT";
             default -> "NULL";
         };
     }

@@ -7,6 +7,7 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.Environment;
 import android.provider.OpenableColumns;
 import android.util.Log;
@@ -14,13 +15,17 @@ import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.documentfile.provider.DocumentFile;
+import androidx.fragment.app.FragmentActivity;
 
+import com.example.mydrive.FragmentListOfFiles;
 import com.example.mydrive.R;
 import com.example.mydrive.dialog.ImageDialog;
 import com.example.mydrive.dialog.VideoDialog;
 import com.example.mydrive.dto.FileDTO;
 import com.example.mydrive.dto.UserListDTO;
 import com.example.mydrive.format.Format;
+import com.example.mydrive.util.UserCallback;
 import com.google.android.gms.auth.api.signin.internal.Storage;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -44,6 +49,7 @@ public class FileManager {
     private static StorageReference storageReference;
     private static FirebaseDatabase firebaseDatabase;
     private static DatabaseReference databaseRef;
+    private final Object lock = new Object();
 
 
 
@@ -52,30 +58,35 @@ public class FileManager {
         firebaseDatabase = FirebaseDatabase.getInstance();
     }
 
-    public void saveFile(String email, String path, Context context, Uri uri) {
-        File file = new File(uri.toString());
-        String fileName = file.getName();
-        StorageReference fileRef = storageReference.child( email + "/" + getFileNameFromUri(context, uri));
-        try {
-            InputStream inputStream = context.getContentResolver().openInputStream(uri);
-            if (inputStream != null) {
-                fileRef.putStream(inputStream)
-                        .addOnSuccessListener(taskSnapshot -> {
-                            Log.d("SAVE", "File saved success!!!");
-                        })
-                        .addOnFailureListener(e -> {
-                            Log.e("SAVE", "Could not save file");
-                        });
+
+
+    public void saveFile(String email, String name, String path, Context context, Uri uri) {
+        synchronized (lock) {
+            File file = new File(uri.toString());
+            String fileName = name;
+            StorageReference fileRef = storageReference.child(email + "/" + getFileNameFromUri(context, uri));
+//        StorageReference fileRef = storageReference.child( email + "/" + fileName);
+            try {
+                InputStream inputStream = context.getContentResolver().openInputStream(uri);
+                if (inputStream != null) {
+                    fileRef.putStream(inputStream)
+                            .addOnSuccessListener(taskSnapshot -> {
+                                Log.d("SAVE", "File saved success!!!");
+                            })
+                            .addOnFailureListener(e -> {
+                                Log.e("SAVE", "Could not save file");
+                            });
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+//            new FileGet().addFile(email, saveInDatabase(email, getFileNameFromUri(context, uri), getSizeOfFile(context, uri)));
         }
-        new FileGet().addFile(email, saveInDatabase(email, getFileNameFromUri(context, uri), getSizeOfFile(context, uri)));
     }
 
     public FileDTO saveInDatabase(String email, String fileName, int fileSize) {
         List<UserListDTO> sharedToUsers = new ArrayList<>();
-        UserListDTO userListDTO = new UserListDTO("empty");
+        UserListDTO userListDTO = new UserListDTO("empty", "empty");
         sharedToUsers.add(userListDTO);
         return  new FileDTO(email, fileName, new Format().formatFile(new Format().getType(fileName, '.')), new Format().getType(fileName, '.'), fileSize, email + "/" + fileName, new Format().isFile(fileName), false, null, sharedToUsers);
     }
@@ -178,7 +189,7 @@ public class FileManager {
         return fileSize;
     }
 
-    public String getFileNameFromUri(Context context, Uri uri) {
+    public String getFileNameFromUriFolder(Context context, Uri uri) {
         String fileName = null;
         Cursor cursor = context.getContentResolver().query(uri, null, null, null, null);
         if (cursor != null) {
@@ -195,6 +206,41 @@ public class FileManager {
             }
         }
         return fileName;
+    }
+
+    public static String getFileNameFromUri(Context context, Uri uri) {
+        if ("content".equalsIgnoreCase(uri.getScheme())) {
+            DocumentFile documentFile = DocumentFile.fromSingleUri(context, uri);
+            if (documentFile == null) {
+                documentFile = DocumentFile.fromTreeUri(context, uri);
+            }
+            if (documentFile != null) {
+                return documentFile.getName();
+            }
+        } else if ("file".equalsIgnoreCase(uri.getScheme())) {
+            String path = uri.getPath();
+            int cut = path.lastIndexOf('/');
+            if (cut != -1) {
+                return path.substring(cut + 1);
+            }
+        }
+        return null;
+    }
+
+    public String getFolderNameFromUri(Context context, Uri uri) {
+        if ("content".equalsIgnoreCase(uri.getScheme())) {
+            DocumentFile documentFile = DocumentFile.fromTreeUri(context, uri);
+            if (documentFile != null && documentFile.isDirectory()) {
+                return documentFile.getName();
+            }
+        } else if ("file".equalsIgnoreCase(uri.getScheme())) {
+            String path = uri.getPath();
+            int cut = path.lastIndexOf('/');
+            if (cut != -1) {
+                return path.substring(cut + 1);
+            }
+        }
+        return null;
     }
 
     private boolean isFile(Context context, Uri uri) {

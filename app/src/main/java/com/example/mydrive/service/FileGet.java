@@ -8,6 +8,8 @@ import com.example.mydrive.dto.FileDTO;
 import com.example.mydrive.dto.UserDTO;
 import com.example.mydrive.dto.UserListDTO;
 import com.example.mydrive.util.FilesCallback;
+import com.example.mydrive.util.UserCallback;
+import com.example.mydrive.util.UsersCallback;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -25,6 +27,21 @@ public class FileGet {
 
     public FileGet() {
         databaseReference = FirebaseDatabase.getInstance().getReference();
+    }
+
+    public void findUserByEmail(String email, UserCallback callback) {
+        databaseReference.child("Users").orderByChild("email").equalTo(email).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                UserDTO userDTO = snapshot.getValue(UserDTO.class);
+                callback.onUserReceive(userDTO);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
     }
 
     public void getFiles(String email, final FilesCallback filesCallback) {
@@ -120,7 +137,7 @@ public class FileGet {
         databaseReference = null;
     }
 
-    public void shareFileToEmail(String emailShare, String path) {
+    public void shareFileToEmail(String emailShare, FileDTO file) {
         Query query = databaseReference.child("Users").orderByChild("email").equalTo(emailShare);
         query.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -135,11 +152,11 @@ public class FileGet {
                         files.addAll(userDTO.getFiles());
                         shares.addAll(userDTO.getShared());
                     }
-                    for (int i = 0; i < files.size(); i++) {
-                        if (files.get(i).getDir().equals(path))
-                            temp = files.get(i);
-                    }
-                    shares.add(temp);
+//                    for (int i = 0; i < files.size(); i++) {
+//                        if (files.get(i).getDir().equals(path))
+//                            temp = files.get(i);
+//                    }
+                    shares.add(file);
                     userDTO.setShared(shares);
                     dataSnapshot.getRef().setValue(userDTO);
                 }
@@ -155,7 +172,7 @@ public class FileGet {
 
 
     public void shareFile(String shareEmail, String ownerEmail, String path) {
-        UserListDTO userL = new UserListDTO(shareEmail);
+        UserListDTO userL = new UserListDTO(shareEmail, path);
         Query query = databaseReference.child("Users").orderByChild("email").equalTo(ownerEmail);
         query.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -219,6 +236,36 @@ public class FileGet {
         databaseReference = null;
     }
 
+    public void getAllUsersShared(String email, String dir, UsersCallback usersCallback) {
+        Query query = databaseReference.child("Users").orderByChild("email").equalTo(email);
+        query.addListenerForSingleValueEvent(new ValueEventListener() {
+
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                UserDTO user = null;
+                List<UserListDTO> users = new ArrayList<>();
+                List<FileDTO> files = new ArrayList<>();
+                for (DataSnapshot dataSnapshot: snapshot.getChildren()) {
+                    user = dataSnapshot.getValue(UserDTO.class);
+                    files.addAll(user.getFiles());
+                    for (FileDTO file:
+                         files) {
+                        if (file.getDir().equals(dir)) {
+                            users.addAll(file.getSharedToUsers());
+                            break;
+                        }
+                    }
+                    usersCallback.onUsersReceived(users);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                usersCallback.onCancelled(error);
+            }
+        });
+    }
+
     public void renameFile(String email, String newNameOfFile, String oldNameOfFile) {
         Query query = databaseReference.child("Users").orderByChild("email").equalTo(email);
         query.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -250,7 +297,7 @@ public class FileGet {
         });
     }
 
-    public void deleteFromShareUserShareFile(String shareEmail, String fileName) {
+    public void deleteFromShareUserShareFile(String shareEmail, String dir) {
         Query query = databaseReference.child("Users").orderByChild("email").equalTo(shareEmail);
         query.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -261,7 +308,7 @@ public class FileGet {
                     user = dataSnapshot.getValue(UserDTO.class);
                     sharedFiles.addAll(user.getShared());
                     for (int i = 0; i < sharedFiles.size(); i++) {
-                        if (sharedFiles.get(i).getName().equals(fileName)) {
+                        if (sharedFiles.get(i).getDir().equals(dir)) {
                             sharedFiles.remove(i);
                             break;
                         }
@@ -278,7 +325,7 @@ public class FileGet {
         });
     }
 
-    public void deleteSharedFileFromOwner(String emailShared, String emailOwner, String fileName) {
+    public void deleteSharedFileFromOwner(String emailShared, String emailOwner, String dir) {
         Query query = databaseReference.child("Users").orderByChild("email").equalTo(emailOwner);
         query.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -291,16 +338,15 @@ public class FileGet {
                     files.addAll(user.getFiles());
                     for (int i = 0; i < files.size(); i++) {
                         FileDTO file = files.get(i);
-                        if (file.getName().equals(fileName)) {
+                        if (file.getDir().equals(dir)) {
                             users.addAll(file.getSharedToUsers());
                             for (int j = 0; j < users.size(); j++) {
                                 if (users.get(j).getEmail().equals(emailShared)) {
-                                    users.remove(i);
+                                    users.remove(j);
                                 }
                             }
                             file.setSharedToUsers(users);
-                            files.remove(i);
-                            files.add(file);
+                            files.set(i, file);
                         }
                     }
                     user.setShared(files);
@@ -335,6 +381,28 @@ public class FileGet {
                     }
                     userDTO.setFiles(files);
                     dataSnapshot.getRef().setValue(userDTO);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
+    public void showPath(String email, String filePath, FilesCallback filesCallback) {
+        Query query = databaseReference.child("Users").orderByChild("email").equalTo(email);
+        query.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                UserDTO userDTO = null;
+                FileDTO file = null;
+                List<FileDTO> files = new ArrayList<>();
+                List<FileDTO> temp = new ArrayList<>();
+                for (DataSnapshot dataSnapshot: snapshot.getChildren()) {
+                    userDTO = dataSnapshot.getValue(UserDTO.class);
+
                 }
             }
 

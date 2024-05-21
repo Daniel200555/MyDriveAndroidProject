@@ -14,6 +14,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.mydrive.dialog.SaveFile;
+import com.example.mydrive.dialog.SaveFolder;
 import com.example.mydrive.service.ChangeActivity;
 import com.example.mydrive.service.FileManager;
 import com.example.mydrive.service.RegisterAndLogin;
@@ -28,7 +29,6 @@ public class Home extends AppCompatActivity implements View.OnClickListener {
     private Button buttonAllFiles;
     private Button buttonSharedFiles;
     private Button buttonStarredFiles;
-    private static final int REQUEST_CODE_FILE_PICKER = 100;
     private StorageReference storageReference;
 
     @Override
@@ -52,6 +52,21 @@ public class Home extends AppCompatActivity implements View.OnClickListener {
             if (getEmail() == null || getEmail().equals("")) {
                 setEmail(new RegisterAndLogin().getEmail());
                 Log.d("GET EMAIL", getEmail());
+                Bundle args = new Bundle();
+                args.putString("option", "all");
+                FragmentListOfFiles fragment = new FragmentListOfFiles(getEmail());
+                fragment.setArguments(args);
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.fragmentListOfFile, fragment)
+                        .commit();
+            } else {
+                Bundle args = new Bundle();
+                args.putString("option", "all");
+                FragmentListOfFiles fragment = new FragmentListOfFiles(getEmail());
+                fragment.setArguments(args);
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.fragmentListOfFile, fragment)
+                        .commit();
             }
             if (getOption() == null) {
                 if (savedInstanceState == null) {
@@ -101,6 +116,7 @@ public class Home extends AppCompatActivity implements View.OnClickListener {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         SaveFile.onActivityResult(requestCode, resultCode, data);
+        SaveFolder.onActivityResult(requestCode, resultCode, data);
     }
 
     public String getEmail() {

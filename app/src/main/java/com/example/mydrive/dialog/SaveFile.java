@@ -5,12 +5,17 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
+import androidx.fragment.app.FragmentActivity;
+
+import com.example.mydrive.FragmentListOfFiles;
 import com.example.mydrive.R;
+import com.example.mydrive.service.FileGet;
 import com.example.mydrive.service.FileManager;
 import com.example.mydrive.service.RegisterAndLogin;
 
@@ -24,8 +29,10 @@ public class SaveFile implements View.OnClickListener {
     private static Uri selectedFileUri;
     private static final int PICK_FILE_REQUEST_CODE = 100;
     private String path;
+    private final Object lock = new Object();
 
     public SaveFile(Context context, String path) {
+        System.out.println("File Dialog");
         this.path = path;
         this.context = context;
         this.dialog = new Dialog(context);
@@ -45,11 +52,32 @@ public class SaveFile implements View.OnClickListener {
         if (v == this.buttonSelectFile) {
             openFilePicker();
         } if (v == this.buttonSaveFile) {
-            Log.d("SAVE FILE", new FileManager().getFileNameFromUri(this.context, this.selectedFileUri));
-            if (getSelectedFileUri() != null) {
-                new FileManager().saveFile(new RegisterAndLogin().getEmail(), path,context, getSelectedFileUri());
+            if (!editTextFileName.getText().toString().equals("") || !editTextFileName.getText().toString().equals(null)) {
+                Log.d("SAVE FILE", new FileManager().getFileNameFromUri(this.context, this.selectedFileUri));
+                if (getSelectedFileUri() != null) {
+                    new FileGet().addFile(new RegisterAndLogin().getEmail(), new FileManager().saveInDatabase(new RegisterAndLogin().getEmail(), new FileManager().getFileNameFromUri(context, getSelectedFileUri()), new FileManager().getSizeOfFile(context, getSelectedFileUri())));
+                    new FileManager().saveFile(new RegisterAndLogin().getEmail(), editTextFileName.getText().toString(), path, context, getSelectedFileUri());
+                    try {
+                        Bundle args = new Bundle();
+                        args.putString("option", "all");
+                        Thread.sleep(1000);
+                        FragmentListOfFiles fragment = new FragmentListOfFiles(new RegisterAndLogin().getEmail());
+                        fragment.setArguments(args);
+                        ((FragmentActivity) context).getSupportFragmentManager().beginTransaction()
+                                .replace(R.id.fragmentListOfFile, fragment)
+                                .commit();
+
+                        dialog.dismiss();
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                } else {
+                    new InfoDialog(context,"Please select file");
+                }
+                dialog.dismiss();
+            } else {
+                new InfoDialog(context,"File name is could not be empty");
             }
-            dialog.dismiss();
         }
     }
 
@@ -65,7 +93,8 @@ public class SaveFile implements View.OnClickListener {
     public static void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == PICK_FILE_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
             if (data != null && data.getData() != null) {
-                setSelectedFileUri(data.getData());editTextFileName.setText(new FileManager().getFileNameFromUri(context, getSelectedFileUri()));
+                setSelectedFileUri(data.getData());
+                editTextFileName.setText(new FileManager().getFileNameFromUri(context, getSelectedFileUri()));
             }
         }
     }

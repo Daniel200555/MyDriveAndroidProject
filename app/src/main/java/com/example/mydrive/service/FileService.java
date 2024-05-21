@@ -33,9 +33,14 @@ public class FileService {
         new FileManager().showVideo(context, path, type);
     }
 
-    public static void shareFile(String ownerEmail, String shareEmail, String path) {
-        new FileGet().shareFileToEmail(shareEmail, path);
-        new FileGet().shareFile(shareEmail, shareEmail, path);
+    public static void shareFile(String ownerEmail, String shareEmail, FileDTO fileDTO) {
+        new FileGet().shareFileToEmail(shareEmail, fileDTO);
+        new FileGet().shareFile(shareEmail, ownerEmail, fileDTO.getDir());
+    }
+
+    public static void deleteFromShare(String ownerEmail, String shareEmail, String dir) {
+        new FileGet().deleteSharedFileFromOwner(shareEmail, ownerEmail, dir);
+        new FileGet().deleteFromShareUserShareFile(shareEmail, dir);
     }
 
 }

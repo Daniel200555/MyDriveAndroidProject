@@ -9,8 +9,12 @@ import android.widget.EditText;
 import com.example.mydrive.Home;
 import com.example.mydrive.MainActivity;
 import com.example.mydrive.R;
+import com.example.mydrive.dto.UserDTO;
 import com.example.mydrive.service.ChangeActivity;
+import com.example.mydrive.service.FileGet;
 import com.example.mydrive.service.RegisterAndLogin;
+import com.example.mydrive.util.AnswerCallback;
+import com.example.mydrive.util.UserCallback;
 
 public class Login implements View.OnClickListener {
 
@@ -40,8 +44,27 @@ public class Login implements View.OnClickListener {
     @Override
     public void onClick(View v) {
         if (v == this.buttonLogin) {
-            registerAndLogin.login(getContext(), this.editTextEmailLogin.getText().toString(), this.editTextPasswordLogin.getText().toString(), dialog);
-            new ChangeActivity(getContext(), Home.class, this.editTextEmailLogin.getText().toString(), "all");
+            new FileGet().findUserByEmail(this.editTextEmailLogin.getText().toString(), new UserCallback() {
+                @Override
+                public void onUserReceive(UserDTO user) {
+                    if (user != null) {
+                        registerAndLogin.login(getContext(), editTextEmailLogin.getText().toString(), editTextPasswordLogin.getText().toString(), dialog, new AnswerCallback() {
+                            @Override
+                            public void checkForErrors(boolean error) {
+                                if (error) {
+                                    InfoDialog infoDialog = new InfoDialog(context, "Password is wrong");
+                                } else {
+                                    new ChangeActivity(getContext(), Home.class, editTextEmailLogin.getText().toString(), "all");
+                                }
+                            }
+                        });
+                    } else {
+                        InfoDialog infoDialog = new InfoDialog(context, "Email is not exist, register please");
+                    }
+                }
+            });
+//            registerAndLogin.login(getContext(), this.editTextEmailLogin.getText().toString(), this.editTextPasswordLogin.getText().toString(), dialog);
+
         }
     }
 
