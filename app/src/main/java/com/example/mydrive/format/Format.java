@@ -21,7 +21,7 @@ public class Format {
                 temp = i;
             }
         }
-        for (int i = temp + 1; i < num; i++)
+        for (int i = temp; i < num; i++)
             result += name.charAt(i);
         return result;
     }

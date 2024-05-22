@@ -23,7 +23,7 @@ public class VideoDialog {
         dialog.setContentView(R.layout.video_dialog);
         dialog.setTitle("Video Dialog");
         dialog.setCancelable(true);
-        VideoView videoView = (VideoView) dialog.findViewById(R.id.videoView);
+        VideoView videoView = (VideoView) dialog.findViewById(R.id.videoViewDialog);
         MediaController mediaController = new MediaController((Activity) context);
         mediaController.setAnchorView(videoView);
         videoView.setMediaController(mediaController);

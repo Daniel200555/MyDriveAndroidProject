@@ -64,7 +64,7 @@ public class FileManager {
         synchronized (lock) {
             File file = new File(uri.toString());
             String fileName = name;
-            StorageReference fileRef = storageReference.child(email + "/" + getFileNameFromUri(context, uri));
+            StorageReference fileRef = storageReference.child(email + "/" + name);
 //        StorageReference fileRef = storageReference.child( email + "/" + fileName);
             try {
                 InputStream inputStream = context.getContentResolver().openInputStream(uri);

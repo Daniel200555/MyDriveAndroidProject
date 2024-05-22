@@ -15,6 +15,7 @@ import androidx.fragment.app.FragmentActivity;
 
 import com.example.mydrive.FragmentListOfFiles;
 import com.example.mydrive.R;
+import com.example.mydrive.format.Format;
 import com.example.mydrive.service.FileGet;
 import com.example.mydrive.service.FileManager;
 import com.example.mydrive.service.RegisterAndLogin;
@@ -24,6 +25,7 @@ public class SaveFile implements View.OnClickListener {
     private Button buttonSelectFile;
     private Button buttonSaveFile;
     private static EditText editTextFileName;
+    private static String type;
     private Dialog dialog;
     private static Context context;
     private static Uri selectedFileUri;
@@ -52,10 +54,10 @@ public class SaveFile implements View.OnClickListener {
         if (v == this.buttonSelectFile) {
             openFilePicker();
         } if (v == this.buttonSaveFile) {
-            if (!editTextFileName.getText().toString().equals("") || !editTextFileName.getText().toString().equals(null)) {
+            if (!editTextFileName.getText().toString().equals("") || !editTextFileName.getText().toString().equals(null) || getType().equals(new Format().getType(editTextFileName.getText().toString(),'.'))) {
                 Log.d("SAVE FILE", new FileManager().getFileNameFromUri(this.context, this.selectedFileUri));
                 if (getSelectedFileUri() != null) {
-                    new FileGet().addFile(new RegisterAndLogin().getEmail(), new FileManager().saveInDatabase(new RegisterAndLogin().getEmail(), new FileManager().getFileNameFromUri(context, getSelectedFileUri()), new FileManager().getSizeOfFile(context, getSelectedFileUri())));
+                    new FileGet().addFile(new RegisterAndLogin().getEmail(), new FileManager().saveInDatabase(new RegisterAndLogin().getEmail(), editTextFileName.getText().toString(), new FileManager().getSizeOfFile(context, getSelectedFileUri())));
                     new FileManager().saveFile(new RegisterAndLogin().getEmail(), editTextFileName.getText().toString(), path, context, getSelectedFileUri());
                     try {
                         Bundle args = new Bundle();
@@ -76,7 +78,7 @@ public class SaveFile implements View.OnClickListener {
                 }
                 dialog.dismiss();
             } else {
-                new InfoDialog(context,"File name is could not be empty");
+                new InfoDialog(context,"File name is could not be empty or without wrong typr");
             }
         }
     }
@@ -95,6 +97,7 @@ public class SaveFile implements View.OnClickListener {
             if (data != null && data.getData() != null) {
                 setSelectedFileUri(data.getData());
                 editTextFileName.setText(new FileManager().getFileNameFromUri(context, getSelectedFileUri()));
+                setType(new Format().getType(editTextFileName.getText().toString(), '.'));
             }
         }
     }
@@ -113,5 +116,13 @@ public class SaveFile implements View.OnClickListener {
 
     public void setPath(String path) {
         this.path = path;
+    }
+
+    public static String getType() {
+        return type;
+    }
+
+    public static void setType(String type) {
+        SaveFile.type = type;
     }
 }
