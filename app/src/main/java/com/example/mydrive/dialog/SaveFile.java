@@ -59,20 +59,7 @@ public class SaveFile implements View.OnClickListener {
                 if (getSelectedFileUri() != null) {
                     new FileGet().addFile(new RegisterAndLogin().getEmail(), new FileManager().saveInDatabase(new RegisterAndLogin().getEmail(), editTextFileName.getText().toString(), new FileManager().getSizeOfFile(context, getSelectedFileUri())));
                     new FileManager().saveFile(new RegisterAndLogin().getEmail(), editTextFileName.getText().toString(), path, context, getSelectedFileUri());
-                    try {
-                        Bundle args = new Bundle();
-                        args.putString("option", "all");
-                        Thread.sleep(1000);
-                        FragmentListOfFiles fragment = new FragmentListOfFiles(new RegisterAndLogin().getEmail());
-                        fragment.setArguments(args);
-                        ((FragmentActivity) context).getSupportFragmentManager().beginTransaction()
-                                .replace(R.id.fragmentListOfFile, fragment)
-                                .commit();
-
-                        dialog.dismiss();
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
-                    }
+                    dialog.dismiss();
                 } else {
                     new InfoDialog(context,"Please select file");
                 }

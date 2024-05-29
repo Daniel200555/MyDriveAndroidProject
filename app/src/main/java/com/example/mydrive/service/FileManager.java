@@ -20,6 +20,8 @@ import androidx.fragment.app.FragmentActivity;
 
 import com.example.mydrive.FragmentListOfFiles;
 import com.example.mydrive.R;
+import com.example.mydrive.dialog.AudioDialog;
+import com.example.mydrive.dialog.DocumentDialog;
 import com.example.mydrive.dialog.ImageDialog;
 import com.example.mydrive.dialog.VideoDialog;
 import com.example.mydrive.dto.FileDTO;
@@ -29,10 +31,14 @@ import com.example.mydrive.util.UserCallback;
 import com.google.android.gms.auth.api.signin.internal.Storage;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageException;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
@@ -71,6 +77,13 @@ public class FileManager {
                 if (inputStream != null) {
                     fileRef.putStream(inputStream)
                             .addOnSuccessListener(taskSnapshot -> {
+                                Bundle args = new Bundle();
+                                args.putString("option", "all");
+                                FragmentListOfFiles fragment = new FragmentListOfFiles(new RegisterAndLogin().getEmail());
+                                fragment.setArguments(args);
+                                ((FragmentActivity) context).getSupportFragmentManager().beginTransaction()
+                                        .replace(R.id.fragmentListOfFile, fragment)
+                                        .commit();
                                 Log.d("SAVE", "File saved success!!!");
                             })
                             .addOnFailureListener(e -> {
@@ -91,12 +104,19 @@ public class FileManager {
         return  new FileDTO(email, fileName, new Format().formatFile(new Format().getType(fileName, '.')), new Format().getType(fileName, '.'), fileSize, email + "/" + fileName, new Format().isFile(fileName), false, null, sharedToUsers);
     }
 
-    public void deleteFile(String filePath) {
+    public void deleteFile(Context context, String filePath) {
         StorageReference fileRef = storageReference.child(filePath);
         fileRef.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void unused) {
                 Log.d("FILE DELETE", "File delete successfully");
+                Bundle args = new Bundle();
+                args.putString("option", "all");
+                FragmentListOfFiles fragment = new FragmentListOfFiles(new RegisterAndLogin().getEmail());
+                fragment.setArguments(args);
+                ((FragmentActivity) context).getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.fragmentListOfFile, fragment)
+                        .commit();
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
@@ -122,54 +142,66 @@ public class FileManager {
         });
     }
 
-    public void renameFile(Context context, String originalPath, String newPath, String fileFormat) {
-        StorageReference originalStorageReference = storageReference.child(originalPath);
-        StorageReference newStorageReference = storageReference.child(newPath);
-        File tempFile;
+    public void renameFile(Context context, String originalPath, String newPath) {
+        System.out.println("manager " + newPath);
+        System.out.println("manager" + originalPath);
+        FirebaseStorage storage = FirebaseStorage.getInstance();
+        StorageReference storageRef = storage.getReference();
+
+        StorageReference oldFileRef = storageRef.child(originalPath);
+        StorageReference newFileRef = storageRef.child(newPath);
         try {
-            tempFile = File.createTempFile("temp_file", fileFormat, context.getCacheDir());
+            final File localFile = File.createTempFile("tempFile", ".tmp");
+            oldFileRef.getFile(localFile).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
+                @Override
+                public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
+                    UploadTask uploadTask = newFileRef.putFile(Uri.fromFile(localFile));
+                    uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                            oldFileRef.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+                                    Log.d("Rename", "File renamed successfully.");
+                                    Bundle args = new Bundle();
+                                    args.putString("option", "all");
+                                    FragmentListOfFiles fragment = new FragmentListOfFiles(new RegisterAndLogin().getEmail());
+                                    fragment.setArguments(args);
+                                    ((FragmentActivity) context).getSupportFragmentManager().beginTransaction()
+                                            .replace(R.id.fragmentListOfFile, fragment)
+                                            .commit();
+                                }
+                            }).addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception exception) {
+                                    // Handle failure in deleting the old file
+                                    Log.e("Rename", "Failed to delete the old file.", exception);
+                                }
+                            });
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception exception) {
+                            Log.e("Rename", "Failed to upload the new file.", exception);
+                        }
+                    });
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception exception) {
+                    // Handle failure in downloading the old file's data
+                    if (exception instanceof com.google.firebase.storage.StorageException &&
+                            ((com.google.firebase.storage.StorageException) exception).getErrorCode() == StorageException.ERROR_OBJECT_NOT_FOUND) {
+                        Log.e("Rename", "File does not exist at the specified location: " + originalPath);
+                    } else {
+                        Log.e("Rename", "Failed to download the old file.", exception);
+                    }
+                }
+            });
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            // Handle failure in creating the temporary file
+            Log.e("Rename", "Failed to create a temporary file.", e);
         }
-        originalStorageReference.getFile(tempFile)
-                .addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
-                    @Override
-                    public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
-                        Log.d("RENAME", "File downloaded successfully");
-                        StorageReference newFileRef = storageReference.child(newPath);
-                        newFileRef.putFile(Uri.fromFile(tempFile))
-                                .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                                    @Override
-                                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                                        Log.d("RENAME", "New file uploaded successfully");
-                                        originalStorageReference.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
-                                            @Override
-                                            public void onSuccess(Void aVoid) {
-                                                Log.d("RENAME", "Original file deleted successfully");
-                                            }
-                                        }).addOnFailureListener(new OnFailureListener() {
-                                            @Override
-                                            public void onFailure(@NonNull Exception e) {
-                                                Log.e("RENAME", "Error deleting original file", e);
-                                            }
-                                        });
-                                    }
-                                })
-                                .addOnFailureListener(new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        Log.e("RENAME", "Error uploading new file", e);
-                                    }
-                                });
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        // Uh-oh, an error occurred!
-                        Log.e("TAG", "Error downloading file", e);
-                    }
-                });
     }
 
     public int getSizeOfFile(Context context, Uri uri) {
@@ -295,6 +327,38 @@ public class FileManager {
         } catch (IOException io) {
 
         }
+    }
+
+    public void showAudio(Context context, String path) {
+        StorageReference show = FirebaseStorage.getInstance().getReference().child(path);
+        show.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+            @Override
+            public void onSuccess(Uri uri) {
+                String temp = uri.toString();
+                AudioDialog audio = new AudioDialog(context, temp);
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+
+            }
+        });
+    }
+
+    public void showTxt(Context context, String path) {
+        StorageReference show = FirebaseStorage.getInstance().getReference().child(path);
+        show.getBytes(Long.MAX_VALUE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
+            @Override
+            public void onSuccess(byte[] bytes) {
+                String text = new String(bytes);
+                new DocumentDialog(context, text);
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+
+            }
+        });
     }
 
 }

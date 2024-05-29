@@ -1,9 +1,14 @@
 package com.example.mydrive.service;
 
+import android.content.Context;
+import android.os.Bundle;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.fragment.app.FragmentActivity;
 
+import com.example.mydrive.FragmentListOfFiles;
+import com.example.mydrive.R;
 import com.example.mydrive.dto.FileDTO;
 import com.example.mydrive.dto.UserDTO;
 import com.example.mydrive.dto.UserListDTO;
@@ -171,7 +176,7 @@ public class FileGet {
     }
 
 
-    public void shareFile(String shareEmail, String ownerEmail, String path) {
+    public void shareFile(Context context, String shareEmail, String ownerEmail, String path) {
         UserListDTO userL = new UserListDTO(shareEmail, path);
         Query query = databaseReference.child("Users").orderByChild("email").equalTo(ownerEmail);
         query.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -196,6 +201,13 @@ public class FileGet {
                     }
                     userDTO.setFiles(files);
                     dataSnapshot.getRef().setValue(userDTO);
+                    Bundle args = new Bundle();
+                    args.putString("option", "all");
+                    FragmentListOfFiles fragment = new FragmentListOfFiles(new RegisterAndLogin().getEmail());
+                    fragment.setArguments(args);
+                    ((FragmentActivity) context).getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.fragmentListOfFile, fragment)
+                            .commit();
                 }
             }
 
@@ -266,7 +278,7 @@ public class FileGet {
         });
     }
 
-    public void renameFile(String email, String newNameOfFile, String oldNameOfFile) {
+    public void renameFile(String email, String newPathOfFile, String oldPathOfFile, String newNameOfFile) {
         Query query = databaseReference.child("Users").orderByChild("email").equalTo(email);
         query.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -278,10 +290,10 @@ public class FileGet {
                     files.addAll(user.getFiles());
                     for (int i = 0; i < files.size(); i++) {
                         FileDTO file = files.get(i);
-                        if (file.getName().equals(oldNameOfFile)) {
+                        if (file.getDir().equals(oldPathOfFile)) {
                             file.setName(newNameOfFile);
-                            files.remove(i);
-                            files.add(file);
+                            file.setDir(newPathOfFile);
+                            files.set(i, file);
                             break;
                         }
                     }
@@ -297,7 +309,7 @@ public class FileGet {
         });
     }
 
-    public void deleteFromShareUserShareFile(String shareEmail, String dir) {
+    public void deleteFromShareUserShareFile(Context context, String shareEmail, String dir) {
         Query query = databaseReference.child("Users").orderByChild("email").equalTo(shareEmail);
         query.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -315,6 +327,13 @@ public class FileGet {
                     }
                     user.setShared(sharedFiles);
                     dataSnapshot.getRef().setValue(user);
+                    Bundle args = new Bundle();
+                    args.putString("option", "all");
+                    FragmentListOfFiles fragment = new FragmentListOfFiles(new RegisterAndLogin().getEmail());
+                    fragment.setArguments(args);
+                    ((FragmentActivity) context).getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.fragmentListOfFile, fragment)
+                            .commit();
                 }
             }
 
@@ -349,7 +368,7 @@ public class FileGet {
                             files.set(i, file);
                         }
                     }
-                    user.setShared(files);
+//                    user.setShared(files);
                     dataSnapshot.getRef().setValue(user);
                 }
             }
@@ -361,7 +380,7 @@ public class FileGet {
         });
     }
 
-    public void starList(String email, String filePath) {
+    public void starList(Context context, String email, String filePath) {
         Query query = databaseReference.child("Users").orderByChild("email").equalTo(email);
         query.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -381,6 +400,13 @@ public class FileGet {
                     }
                     userDTO.setFiles(files);
                     dataSnapshot.getRef().setValue(userDTO);
+                    Bundle args = new Bundle();
+                    args.putString("option", "all");
+                    FragmentListOfFiles fragment = new FragmentListOfFiles(new RegisterAndLogin().getEmail());
+                    fragment.setArguments(args);
+                    ((FragmentActivity) context).getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.fragmentListOfFile, fragment)
+                            .commit();
                 }
             }
 
@@ -413,7 +439,7 @@ public class FileGet {
         });
     }
 
-    public void unStarList(String email, String filePath) {
+    public void unStarList(Context context, String email, String filePath) {
         Log.d("FILE UN STAR", "in method");
         Query query = databaseReference.child("Users").orderByChild("email").equalTo(email);
         query.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -434,6 +460,13 @@ public class FileGet {
                     }
                     userDTO.setFiles(files);
                     dataSnapshot.getRef().setValue(userDTO);
+                    Bundle args = new Bundle();
+                    args.putString("option", "all");
+                    FragmentListOfFiles fragment = new FragmentListOfFiles(new RegisterAndLogin().getEmail());
+                    fragment.setArguments(args);
+                    ((FragmentActivity) context).getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.fragmentListOfFile, fragment)
+                            .commit();
                 }
             }
 

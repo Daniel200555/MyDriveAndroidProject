@@ -39,29 +39,8 @@ public class ShareDialog {
         shareButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                new FileGet().findUserByEmail(shareEmail.getText().toString(), new UserCallback() {
-                    @Override
-                    public void onUserReceive(UserDTO user) {
-                        if (user == null) {
-                            InfoDialog info = new InfoDialog(context, "Email: " + shareEmail.getText().toString() + ", not exist!!!");
-                        } else {
-                            FileService.shareFile(new RegisterAndLogin().getEmail(), shareEmail.getText().toString(), file);
-                            try {
-                                Thread.sleep(1000);
-                                Bundle args = new Bundle();
-                                args.putString("option", "all");
-                                FragmentListOfFiles fragment = new FragmentListOfFiles(new RegisterAndLogin().getEmail());
-                                fragment.setArguments(args);
-                                ((FragmentActivity) context).getSupportFragmentManager().beginTransaction()
-                                        .replace(R.id.fragmentListOfFile, fragment)
-                                        .commit();
-                            } catch (InterruptedException e) {
-                                throw new RuntimeException(e);
-                            }
-                            dialog.dismiss();
-                        }
-                    }
-                });
+                FileService.shareFile(context, new RegisterAndLogin().getEmail(), shareEmail.getText().toString(), file);
+                dialog.dismiss();
             }
         });
         dialog.show();

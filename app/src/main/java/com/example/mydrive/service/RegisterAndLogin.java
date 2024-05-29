@@ -21,9 +21,17 @@ import com.google.firebase.auth.FirebaseUser;
 public class RegisterAndLogin {
 
     private static FirebaseAuth firebaseAuth;
+    private static RegisterAndLogin instance;
 
     static {
         firebaseAuth = FirebaseAuth.getInstance();
+    }
+
+    public static synchronized RegisterAndLogin getInstance() {
+        if (instance == null) {
+            instance = new RegisterAndLogin();
+        }
+        return instance;
     }
 
     public void register(Context context, String email, String password, Dialog dialog) {

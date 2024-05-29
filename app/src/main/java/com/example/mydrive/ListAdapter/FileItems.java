@@ -23,7 +23,9 @@ import com.example.mydrive.FragmentListOfFiles;
 import com.example.mydrive.Home;
 import com.example.mydrive.ListOfFiles;
 import com.example.mydrive.R;
+import com.example.mydrive.dialog.InfoDialog;
 import com.example.mydrive.dialog.ListOfShareUser;
+import com.example.mydrive.dialog.Rename;
 import com.example.mydrive.dialog.SaveFolder;
 import com.example.mydrive.dialog.ShareDialog;
 import com.example.mydrive.dto.FileDTO;
@@ -75,8 +77,15 @@ public class FileItems extends ArrayAdapter<FileDTO> {
                         FileService.showVideo(getContext(), file.getDir(), file.getFormat());
                         Log.d("FILE SHOW ", "show file");
                         break;
-                    case "FOLDER":
-                        new FragmentListOfFiles(new RegisterAndLogin().getEmail());
+                    case "AUDIO":
+                        FileService.showAudio(context, file.getDir());
+                        break;
+                    case "DOCUMENT":
+                        FileService.showDocument(context, file.getDir());
+                        break;
+                    case "NULL":
+                        FileService.showDownloadInfo(context, "Please Download file to watch it", file.getDir(), file.getName());
+                        break;
                 }
             }
         });
@@ -85,42 +94,39 @@ public class FileItems extends ArrayAdapter<FileDTO> {
     }
 
     private void showPopupMenu(View view, FileDTO fileDTO) {
+        String owner = fileDTO.getOwner();
         PopupMenu popupMenu = new PopupMenu(getContext(), view);
         popupMenu.getMenuInflater().inflate(R.menu.popup_menu, popupMenu.getMenu());
         MenuItem delete = popupMenu.getMenu().findItem(R.id.action_delete);
         MenuItem star = popupMenu.getMenu().findItem(R.id.action_star);
         MenuItem download = popupMenu.getMenu().findItem(R.id.action_download);
         MenuItem share = popupMenu.getMenu().findItem(R.id.action_share);
+        MenuItem rename = popupMenu.getMenu().findItem(R.id.action_rename);
         share.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(@NonNull MenuItem item) {
                 Log.d("Share Size", "Size: " + fileDTO.getSharedToUsers().size());
-                if (fileDTO.getSharedToUsers().size() > 1)
-                    new ListOfShareUser(context, fileDTO);
-                else
+                if (owner.equals(new RegisterAndLogin().getEmail())) {
+                    if (fileDTO.getSharedToUsers().size() > 1)
+                        new ListOfShareUser(context, fileDTO);
+                    else
 //                    new SaveFolder(context, "bla");
-                    new ShareDialog(context, fileDTO);
-                Log.d("SHARE FILE", fileDTO.getDir());
-                Toast.makeText(getContext(), "Share clicked. Dir " + fileDTO.getDir(), Toast.LENGTH_SHORT).show();
+                        new ShareDialog(context, fileDTO);
+                    Log.d("SHARE FILE", fileDTO.getDir());
+                    Toast.makeText(getContext(), "Share clicked. Dir " + fileDTO.getDir(), Toast.LENGTH_SHORT).show();
+                } else {
+                    new InfoDialog(context, "You could not to share this file because you are not owner of this file");
+                }
                 return true;
             }
         });
         delete.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(@NonNull MenuItem item) {
-
-                new FileService().deleteFile(new RegisterAndLogin().getEmail(), fileDTO);
-                try {
-                    Thread.sleep(1000);
-                    Bundle args = new Bundle();
-                    args.putString("option", "all");
-                    FragmentListOfFiles fragment = new FragmentListOfFiles(new RegisterAndLogin().getEmail());
-                    fragment.setArguments(args);
-                    ((FragmentActivity) context).getSupportFragmentManager().beginTransaction()
-                            .replace(R.id.fragmentListOfFile, fragment)
-                            .commit();
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
+                if (owner.equals(new RegisterAndLogin().getEmail())) {
+                    new FileService().deleteFile(context, new RegisterAndLogin().getEmail(), fileDTO);
+                } else {
+                    new InfoDialog(context, "You could not to delete this file because you are not owner of this file");
                 }
                 Toast.makeText(getContext(), "Delete clicked", Toast.LENGTH_SHORT).show();
                 return true;
@@ -129,21 +135,13 @@ public class FileItems extends ArrayAdapter<FileDTO> {
         star.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(@NonNull MenuItem item) {
-                if (!fileDTO.isStar())
-                    new FileService().starFile(new RegisterAndLogin().getEmail(), fileDTO.getDir());
-                else
-                    new FileService().unStarFile(new RegisterAndLogin().getEmail(), fileDTO.getDir());
-                try {
-                    Thread.sleep(1000);
-                    Bundle args = new Bundle();
-                    args.putString("option", "all");
-                    FragmentListOfFiles fragment = new FragmentListOfFiles(new RegisterAndLogin().getEmail());
-                    fragment.setArguments(args);
-                    ((FragmentActivity) context).getSupportFragmentManager().beginTransaction()
-                            .replace(R.id.fragmentListOfFile, fragment)
-                            .commit();
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
+                if (owner.equals(new RegisterAndLogin().getEmail())) {
+                    if (!fileDTO.isStar())
+                        new FileService().starFile(context, new RegisterAndLogin().getEmail(), fileDTO.getDir());
+                    else
+                        new FileService().unStarFile(context, new RegisterAndLogin().getEmail(), fileDTO.getDir());
+                } else {
+                    new InfoDialog(context, "You could not to delete this file because you are not owner of this file");
                 }
                 Toast.makeText(getContext(), "Star clicked", Toast.LENGTH_SHORT).show();
                 return true;
@@ -161,6 +159,20 @@ public class FileItems extends ArrayAdapter<FileDTO> {
             @Override
             public void onClick(View v) {
                 popupMenu.show();
+            }
+        });
+        rename.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(@NonNull MenuItem item) {
+                if (owner.equals(new RegisterAndLogin().getEmail())) {
+                    if (fileDTO.getSharedToUsers().size() == 0)
+                        new Rename(context, fileDTO.getDir());
+                    else
+                        new InfoDialog(context, "You could not to rename this file because this file shared to other users");
+                } else
+                    new InfoDialog(context, "You could not to rename this file because you are not owner of this file");
+                Toast.makeText(getContext(), "Rename clicked", Toast.LENGTH_SHORT).show();
+                return true;
             }
         });
     }

@@ -4,10 +4,10 @@ public class Format {
 
     public String formatFile(String name) {
         return switch (name) {
-            case "jpg", "jpeg", "png" -> "PICTURE";
-            case "mp4", "mov", "avi" -> "VIDEO";
-            case "mp3" -> "AUDIO";
-            case "txt" -> "DOCUMENT";
+            case ".jpg", ".jpeg", ".png" -> "PICTURE";
+            case ".mp4", ".mov", ".avi" -> "VIDEO";
+            case ".mp3" -> "AUDIO";
+            case ".txt" -> "DOCUMENT";
             default -> "NULL";
         };
     }

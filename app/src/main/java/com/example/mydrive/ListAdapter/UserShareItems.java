@@ -55,19 +55,15 @@ public class UserShareItems extends ArrayAdapter<UserListDTO> {
         buttonMore.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                FileService.deleteFromShare(new RegisterAndLogin().getEmail(), textViewNameOFFile.getText().toString(), user.getDir());
-                try {
-                    Bundle args = new Bundle();
-                    args.putString("option", "all");
-                    Thread.sleep(1000);
-                    FragmentListOfFiles fragment = new FragmentListOfFiles(new RegisterAndLogin().getEmail());
-                    fragment.setArguments(args);
-                    ((FragmentActivity) context).getSupportFragmentManager().beginTransaction()
-                            .replace(R.id.fragmentListOfFile, fragment)
-                            .commit();
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
+                FileService.deleteFromShare(context, new RegisterAndLogin().getEmail(), textViewNameOFFile.getText().toString(), user.getDir());
+//                Bundle args = new Bundle();
+//                args.putString("option", "all");
+//                FragmentListOfFiles fragment = new FragmentListOfFiles(new RegisterAndLogin().getEmail());
+//                fragment.setArguments(args);
+//                ((FragmentActivity) context).getSupportFragmentManager().beginTransaction()
+//                        .replace(R.id.fragmentListOfFile, fragment)
+//                        .commit();
+
             }
         });
 

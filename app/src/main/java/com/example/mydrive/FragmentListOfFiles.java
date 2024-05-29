@@ -73,13 +73,6 @@ public class FragmentListOfFiles extends Fragment implements View.OnClickListene
                             break;
                         }
                     }
-//                    for (FileDTO file : files) {
-//                        System.out.println(file.getName());
-////                        if (!file.getName().equals("empty") && !file.getDir().equals("empty")) {
-////                            System.out.println(file.getName());
-////                            f.add(file);
-////                        }
-//                    }
 
                     System.out.println(f.size());
                     FileItems items = new FileItems(getContext(), f);
