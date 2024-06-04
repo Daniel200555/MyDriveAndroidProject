@@ -26,15 +26,6 @@ public class Add implements View.OnClickListener {
         this.dialog.setCancelable(true);
         this.buttonAddFile = (Button) dialog.findViewById(R.id.buttonAddFileDialog);
         this.buttonAddFile.setOnClickListener(this);
-//        this.buttonAddDir = (Button) dialog.findViewById(R.id.buttonAddDirDialog);
-//        this.buttonAddDir.setOnClickListener(this);
-//        this.buttonAddDir.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                SaveFolder saveFolder = new SaveFolder(this.context, getPath());
-//                this.dialog.dismiss();
-//            }
-//        });
         this.dialog.show();
     }
 
@@ -43,13 +34,7 @@ public class Add implements View.OnClickListener {
         if (v == this.buttonAddFile) {
             SaveFile saveFile = new SaveFile(this.context, getPath());
             this.dialog.dismiss();
-//            SaveFolder saveFolder = new SaveFolder(this.context, getPath());
-//            this.dialog.dismiss();
         }
-//        if (v == this.buttonAddDir) {
-//            SaveFolder saveFolder = new SaveFolder(this.context, getPath());
-//            this.dialog.dismiss();
-//        }
     }
 
     public String getPath() {

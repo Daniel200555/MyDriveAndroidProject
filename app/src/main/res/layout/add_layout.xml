@@ -13,13 +13,4 @@
         android:id="@+id/buttonAddFileDialog"
         android:background="#C11114"/>
 
-<!--    <Button-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:layout_margin="15dp"-->
-<!--        android:text="Add Folder"-->
-<!--        android:textSize="30sp"-->
-<!--        android:id="@+id/buttonAddDirDialog"-->
-<!--        android:background="#C11114"/>-->
-
 </LinearLayout>

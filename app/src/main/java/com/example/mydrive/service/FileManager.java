@@ -11,6 +11,8 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.OpenableColumns;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
 import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
@@ -47,8 +49,11 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.Instant;
+import java.time.temporal.TemporalAdjuster;
 import java.util.ArrayList;
 import java.util.List;
+//import com.bumptech.glide.Glide;
 
 public class FileManager {
 
@@ -67,7 +72,13 @@ public class FileManager {
 
 
     public void saveFile(String email, String name, String path, Context context, Uri uri) {
-        synchronized (lock) {
+            Dialog dialog = new Dialog(context);
+            View dialogView = LayoutInflater.from(context).inflate(R.layout.image_dialog, null);
+            ImageView loadingGif = dialogView.findViewById(R.id.imageView);
+            loadingGif.setImageResource(R.drawable.gto);// Ensure you have a loading_gif.gif in res/drawable
+            dialog.setContentView(dialogView);
+            dialog.setCancelable(false);
+            dialog.show();
             File file = new File(uri.toString());
             String fileName = name;
             StorageReference fileRef = storageReference.child(email + "/" + name);
@@ -77,6 +88,7 @@ public class FileManager {
                 if (inputStream != null) {
                     fileRef.putStream(inputStream)
                             .addOnSuccessListener(taskSnapshot -> {
+                                dialog.dismiss();
                                 Bundle args = new Bundle();
                                 args.putString("option", "all");
                                 FragmentListOfFiles fragment = new FragmentListOfFiles(new RegisterAndLogin().getEmail());
@@ -94,7 +106,6 @@ public class FileManager {
                 e.printStackTrace();
             }
 //            new FileGet().addFile(email, saveInDatabase(email, getFileNameFromUri(context, uri), getSizeOfFile(context, uri)));
-        }
     }
 
     public FileDTO saveInDatabase(String email, String fileName, int fileSize) {

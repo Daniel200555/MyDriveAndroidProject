@@ -165,7 +165,7 @@ public class FileItems extends ArrayAdapter<FileDTO> {
             @Override
             public boolean onMenuItemClick(@NonNull MenuItem item) {
                 if (owner.equals(new RegisterAndLogin().getEmail())) {
-                    if (fileDTO.getSharedToUsers().size() == 0)
+                    if (fileDTO.getSharedToUsers().size() == 1)
                         new Rename(context, fileDTO.getDir());
                     else
                         new InfoDialog(context, "You could not to rename this file because this file shared to other users");
